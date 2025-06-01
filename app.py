@@ -70,7 +70,20 @@ def login():
 @login_required
 def dashboard():
     #Colocar filtro por estado y ordenamiento por fecha (ASC/DESC)
-    tareas = Tarea.query.all() 
+    estado = request.args.get('estado')
+    orden = request.args.get('orden', 'asc')
+
+    query = Tarea.query
+
+    if estado:
+        query = query.filter_by(estado=estado)
+
+    if orden == 'desc':
+        query = query.order_by(Tarea.fecha_vencimiento.desc())
+    else:
+        query = query.order_by(Tarea.fecha_vencimiento.asc())
+
+    tareas = query.all()
     return render_template('dashboard.html', user=current_user, items=tareas)
 
 @app.route('/logout')

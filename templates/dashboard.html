@@ -17,6 +17,28 @@
 <div class="container mt-5">
     <h2 class="mb-4">Listado de Tareas</h2>
     <div class="container mt-4">  
+
+        <form id="filtrosForm" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <label for="estadoFiltro" class="form-label">Filtrar por estado</label>
+            <select id="estadoFiltro" name="estado" class="form-select">
+            <option value="">Todos</option>
+            <option value="P">Pendiente</option>
+            <option value="F">Finalizada</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="ordenFecha" class="form-label">Ordenar por fecha de vencimiento</label>
+            <select id="ordenFecha" name="orden" class="form-select">
+            <option value="asc">Más antiguas primero</option>
+            <option value="desc">Más recientes primero</option>
+            </select>
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">Aplicar filtros</button>
+        </div>
+        </form>
+
         <table class="table table-centered">
             <thead class="table-dark">
                 <tr>
@@ -221,6 +243,20 @@ function eliminarTarea() {
         if (res.success) location.reload();
     });
 }
+</script>
+<script>
+document.getElementById('filtrosForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const estado = document.getElementById('estadoFiltro').value;
+    const orden = document.getElementById('ordenFecha').value;
+
+    const params = new URLSearchParams();
+    if (estado) params.append('estado', estado);
+    if (orden) params.append('orden', orden);
+
+    window.location.href = `/dashboard?${params.toString()}`;
+});
 </script>
 </body>
 </html>
