@@ -4,9 +4,12 @@ from flask_login import LoginManager, login_user, login_required, logout_user, U
 from werkzeug.security import check_password_hash
 from flask import request, jsonify
 from datetime import datetime
-#from models import db, Tarea
 from flask_login import login_required
 from datetime import date
+from io import BytesIO, StringIO
+from reportlab.pdfgen import canvas  # si usas PDF
+from flask import make_response, send_file
+
 
 app = Flask(__name__)
 app.secret_key = 'clave_secreta'  # Cambia esto por una clave segura
@@ -171,6 +174,39 @@ def eliminar():
         db.session.rollback()
         return jsonify({'success': False, 'message': f'Error al eliminar: {str(e)}'})
 
+@app.route('/exportar/<formato>')
+def exportar_tareas(formato):
+    tareas = Tarea.query.order_by(Tarea.fecha_vencimiento).all()
+
+    if formato == 'txt':
+        buffer = StringIO()
+        for tarea in tareas:
+            buffer.write(f"ID: {tarea.id} | Título: {tarea.titulo} | Fecha: {tarea.fecha_vencimiento} | Estado: {tarea.estado}\n")
+        response = make_response(buffer.getvalue())
+        response.headers["Content-Disposition"] = "attachment; filename=tareas.txt"
+        response.mimetype = "text/plain"
+        return response
+
+    elif formato == 'pdf':
+        buffer = BytesIO()
+        pdf = canvas.Canvas(buffer)
+        pdf.setTitle("Listado de Tareas")
+        y = 800
+        pdf.drawString(100, y, "Listado de Tareas")
+        y -= 30
+        for tarea in tareas:
+            texto = f"ID: {tarea.id} | Título: {tarea.titulo} | Fecha: {tarea.fecha_vencimiento} | Estado: {tarea.estado}"
+            pdf.drawString(100, y, texto)
+            y -= 20
+            if y < 50:
+                pdf.showPage()
+                y = 800
+        pdf.save()
+        buffer.seek(0)
+        return send_file(buffer, as_attachment=True, download_name="tareas.pdf", mimetype='application/pdf')
+
+    else:
+        return "Formato no soportado", 400
 
 #--------------------------------------------------
 #   INICIO DE LA APP

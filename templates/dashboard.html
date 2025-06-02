@@ -6,74 +6,82 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body class="bg-light">
-    <div class="container mt-5">
+    <div class="container mt-2">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2>Bienvenido, {{ user.username }}</h2>
+            <h3>Bienvenido, {{ user.username }}</h3>
             <a href="{{ url_for('logout') }}" class="btn btn-danger">Cerrar sesión</a>
         </div>
-        <p class="lead">Has iniciado sesión exitosamente.</p>
     </div>
 
 <div class="container mt-5">
-    <h2 class="mb-4">Listado de Tareas</h2>
+    <h3 class="mb-4">Listado de Tareas</h3>
     <div class="container mt-4">  
 
         <form id="filtrosForm" class="row g-3 mb-4">
-        <div class="col-md-4">
-            <label for="estadoFiltro" class="form-label">Filtrar por estado</label>
-            <select id="estadoFiltro" name="estado" class="form-select">
-            <option value="">Todos</option>
-            <option value="P">Pendiente</option>
-            <option value="F">Finalizada</option>
-            </select>
-        </div>
-        <div class="col-md-4">
-            <label for="ordenFecha" class="form-label">Ordenar por fecha de vencimiento</label>
-            <select id="ordenFecha" name="orden" class="form-select">
-            <option value="asc">Más antiguas primero</option>
-            <option value="desc">Más recientes primero</option>
-            </select>
-        </div>
-        <div class="col-md-4 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary">Aplicar filtros</button>
-        </div>
+            <div class="col-md-4">
+                <label for="estadoFiltro" class="form-label">Filtrar por estado</label>
+                <select id="estadoFiltro" name="estado" class="form-select">
+                <option value="">Todos</option>
+                <option value="P">Pendiente</option>
+                <option value="F">Finalizada</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="ordenFecha" class="form-label">Ordenar por fecha de vencimiento</label>
+                <select id="ordenFecha" name="orden" class="form-select">
+                <option value="asc">Más antiguas primero</option>
+                <option value="desc">Más recientes primero</option>
+                </select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">Aplicar filtros</button>
+            </div>
         </form>
-
-        <table class="table table-centered">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Título</th>
-                    <th>Fecha Vencimiento</th>
-                    <th>Ver</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in items %}
-                <tr>
-                    <td>{{ item.id }}</td>
-                    <td>{{ item.titulo }}</td>
-                    <td>{{ item.fecha_vencimiento }}</td>
-                    <td>
-                        <button 
-                            class="btn btn-primary btn-sm" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#detalleModal"
-                            onclick="cargarDatos('{{ item.id }}', '{{ item.titulo }}', '{{ item.descripcion|escape }}', '{{ item.fecha_vencimiento }}', '{{ item.estado }}')">
-                            editar
-                        </button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
+        <div style="max-height: 200px; overflow-y: auto;" class="border rounded shadow-sm">
+            <table class="table table-centered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Título</th>
+                        <th>Fecha Vencimiento</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.titulo }}</td>
+                        <td>{{ item.fecha_vencimiento }}</td>
+                        <td>
+                            <button 
+                                class="btn btn-primary btn-sm" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#detalleModal"
+                                onclick="cargarDatos('{{ item.id }}', '{{ item.titulo }}', '{{ item.descripcion|escape }}', '{{ item.fecha_vencimiento }}', '{{ item.estado }}')">
+                                editar
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
         <!-- Botón para abrir modal de nueva tarea -->
-        <div class="mb-4 text-start">
+        <div class="mb-4 d-flex justify-content-start gap-2">
             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#nuevaTareaModal">
                 Nueva tarea...
             </button>
-        </div>   
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Exportar
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{{ url_for('exportar_tareas', formato='txt') }}">Exportar a TXT</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('exportar_tareas', formato='pdf') }}">Exportar a PDF</a></li>
+                </ul>
+            </div>            
+        </div>
     </div>       
 </div>
 
@@ -244,6 +252,8 @@ function eliminarTarea() {
     });
 }
 </script>
+
+<!--para aplicar filtros y ordenamiento-->
 <script>
 document.getElementById('filtrosForm').addEventListener('submit', function(e) {
     e.preventDefault();
