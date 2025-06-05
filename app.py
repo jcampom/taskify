@@ -13,6 +13,7 @@ from flask import make_response, send_file
 
 app = Flask(__name__)
 app.secret_key = 'clave_secreta'  # Cambia esto por una clave segura
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'jlcm1972.mysql.pythonanywhere-services.com://root:@localhost/flask_auth'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/flask_auth'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
